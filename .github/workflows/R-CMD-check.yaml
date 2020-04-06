@@ -61,6 +61,7 @@ jobs:
       - name: Install dependencies
         run: |
           options(repos = c(getOption("repos"), BiocManager::repositories()))
+          install.packages("Rcpp", repos="https://rcppcore.github.io/drat")
           remotes::install_deps(dependencies = TRUE)
           remotes::install_cran("rcmdcheck")
         shell: Rscript {0}
