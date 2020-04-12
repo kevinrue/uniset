@@ -3,14 +3,17 @@ on:
   pull_request:
     branches:
       - master
+  schedule:
+    - cron: '0 8 * * 5'
 
 name: R-CMD-check
 
 jobs:
   R-CMD-check:
     runs-on: ${{ matrix.config.os }}
+    container: ${{ matrix.config.image }}
 
-    name: ${{ matrix.config.os }} (${{ matrix.config.r }})
+    name: ${{ matrix.config.os }} (${{ matrix.config.r }} - ${{ matrix.config.image }})
 
     strategy:
       fail-fast: false
@@ -35,6 +38,7 @@ jobs:
           r-version: ${{ matrix.config.r }}
 
       - uses: r-lib/actions/setup-pandoc@master
+        if: matrix.config.image == null
 
       - name: Query dependencies
         run: |
@@ -44,7 +48,7 @@ jobs:
         shell: Rscript {0}
 
       - name: Cache R packages
-        if: runner.os != 'Windows'
+        if: runner.os != 'Windows' && matrix.config.image == null
         uses: actions/cache@v1
         with:
           path: ${{ env.R_LIBS_USER }}
