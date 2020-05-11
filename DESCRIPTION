@@ -13,9 +13,8 @@ Description: Classes to describe relationships between elements and sets,
     with an emphasis on gene sets.
     Slots are available to store element and set metadata.
     Fuzzy sets (including membership functions) are supported.
-Depends: R (>= 3.5.0), S4Vectors
-Imports: 
-    methods,
+Depends: R (>= 3.5.0), S4Vectors, methods
+Imports:
     AnnotationDbi,
     BiocGenerics,
     GSEABase,
