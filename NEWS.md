@@ -1,18 +1,24 @@
 # unisets 0.99.0
 
 * Added a `NEWS.md` file to track changes to the package.
-* Added classes `BaseSets`.
-* Added `relations`, `elementData`, and `setData` accessors for class `BaseSets`.
-* Added `length`, `nElements`, `nSets`, `setLengths` and `elementLengths` methods for class `BaseSets`.
-* Added method `subset` for classes `BaseSets`.
+* Added class `IdVector`.
+* Added accessors `ids` for class `IdVector`.
+* Added methods `duplicated`, `unique`, and `union` for class `IdVector`.
+* Added classes `EntrezIdVector` and `EnsemblIdVector`.
+* Added class `Sets`.
+* Added accessors `relations`, `elementInfo`, and `setInfo` for class `Sets`.
+* Added methods `length`, `nElements`, `nSets`, `setLengths` and `elementLengths` for class `Sets`.
+* Added `show` method for class `Sets` matching the `Hits` class
+* Added method `subset` for class `Sets`.
+* Added method `c` for class `Sets`.
 * Added classes `FuzzyHits` and `FuzzySets`.
-* Added `membership` accessors for class `FuzzySets`.
+* Added accessor `membership` for class `FuzzySets`.
 * Added classes `GOHits` and `GOSets`.
-* Added `evidence` and `ontology` accessors for class `GOSets`.
-* Added `import` and `export` methods for GMT file format.
-* Added `import` method for `Go3AnnDbBimap` objects.
-* Added `as` methods to `matrix` and `list`.
-* Added `as` method from `matrix` and `list`.
-* Added `as` method from `BaseSets` to `FuzzySets`.
+* Added accessors `evidence` and `ontology` for class `GOSets`.
+* Added methods `import` and `export` for GMT file format.
+* Added method `import` for `Go3AnnDbBimap` objects.
+* Added method `as` to `matrix` and `list`.
+* Added method `as` from `matrix` and `list`.
+* Added method `as` from `Sets` to `FuzzySets`.
 * Added introduction vignette.
 * Added vignette describing integration with Bioconductor `org.*.db` packages.

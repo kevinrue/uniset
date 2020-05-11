@@ -15,11 +15,11 @@ Description: Classes to describe relationships between elements and sets,
     Fuzzy sets (including membership functions) are supported.
 Depends: R (>= 3.5.0), S4Vectors
 Imports: 
+    methods,
     AnnotationDbi,
     BiocGenerics,
     GSEABase,
     IRanges,
-    methods,
     reshape2,
     rtracklayer,
     utils
@@ -37,7 +37,7 @@ Suggests:
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 6.1.1
+RoxygenNote: 7.1.0
 Roxygen: list(markdown = TRUE)
 VignetteBuilder: knitr
 URL: https://github.com/kevinrue/unisets, http://kevinrue.github.io/unisets

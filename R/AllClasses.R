@@ -44,7 +44,11 @@
 #' @exportClass IdVector
 #' @importClassesFrom S4Vectors Vector
 #'
-#' @seealso [`Vector-class`], [`EntrezIdVector-class`], [`GOIdVector-class`]
+#' @seealso
+#' [`Vector-class`],
+#' [`EntrezIdVector-class`],
+#' [`EnsemblIdVector-class`],
+#' [`GOIdVector-class`]
 #'
 #' @examples
 #' # Constructor ----
@@ -72,8 +76,8 @@ setClass("IdVector",
 )
 
 #' @importFrom methods callNextMethod
-#' @importMethodsFrom S4Vectors parallelSlotNames
-setMethod("parallelSlotNames", "IdVector", function(x) {
+#' @importMethodsFrom S4Vectors vertical_slot_names
+setMethod("vertical_slot_names", "IdVector", function(x) {
     c("ids", callNextMethod())
 })
 
@@ -99,26 +103,26 @@ IdVector <- function(ids=character(0)) {
     new("IdVector", ids=ids)
 }
 
-# BaseSets ----
+# Sets ----
 
-#' BaseSets Class
+#' Sets Class
 #'
-#' The `BaseSets` class implements a container to describe distinct objects that make up sets, along with element metadata and set metadata.
+#' The `Sets` class implements a container to describe distinct objects that make up sets, along with element metadata and set metadata.
 #'
 #' @slot relations [`Hits-class`]
-#' The _left node_ and _right node_ of each hit stores the index of the `element` and `set` in `elementData` and `setData`, respectively.
+#' The _left node_ and _right node_ of each hit stores the index of the `element` and `set` in `elementInfo` and `setInfo`, respectively.
 #' Metadata for each relation is stored as `mcols(relations(object))`.
-#' @slot elementData [`IdVector-class`].
-#' Metadata for each unique element in `relations$element` is stored as `mcols(elementData)`.
-#' @slot setData [`IdVector-class`].
-#' Metadata for each unique set in `relations$set` is stored as `mcols(setData)`.
+#' @slot elementInfo [`IdVector-class`].
+#' Metadata for each unique element in `relations$element` is stored as `mcols(elementInfo)`.
+#' @slot setInfo [`IdVector-class`].
+#' Metadata for each unique set in `relations$set` is stored as `mcols(setInfo)`.
 #'
 #' @export
-#' @exportClass BaseSets
+#' @exportClass Sets
 #' @importClassesFrom S4Vectors Hits
 #' @importFrom S4Vectors Hits
 #'
-#' @seealso [`BaseSets-methods`].
+#' @seealso [`Sets-methods`].
 #'
 #' @examples
 #' # Constructor ----
@@ -129,7 +133,7 @@ IdVector <- function(ids=character(0)) {
 #'   set2=c("B", "C", "D"),
 #'   set3=c("E"))
 #'
-#' bs <- as(sets, "BaseSets")
+#' bs <- as(sets, "Sets")
 #' bs
 #'
 #' # Coercing ----
@@ -144,8 +148,8 @@ IdVector <- function(ids=character(0)) {
 #' # Accessors ----
 #'
 #' relations(bs)
-#' elementData(bs)
-#' setData(bs)
+#' elementInfo(bs)
+#' setInfo(bs)
 #'
 #' # Dimensions ----
 #'
@@ -155,41 +159,41 @@ IdVector <- function(ids=character(0)) {
 #'
 #' setLengths(bs)
 #' elementLengths(bs)
-setClass("BaseSets",
+setClass("Sets",
     slots=c(
         relations="Hits",
-        elementData="IdVector",
-        setData="IdVector"
+        elementInfo="IdVector",
+        setInfo="IdVector"
     ),
     prototype=list(
         relations=Hits(),
-        elementData=IdVector(),
-        setData=IdVector()
+        elementInfo=IdVector(),
+        setInfo=IdVector()
     )
 )
 
-#' @name BaseSets-class
-#' @rdname BaseSets-class
-#' @aliases BaseSets
+#' @name Sets-class
+#' @rdname Sets-class
+#' @aliases Sets
 #'
 #' @param relations [`DataFrame-class`].
 #' At least two columns that provide mapping relationships between `"element"` and `"set"` identifiers.
 #' Additional columns are taken as relation metadata.
-#' @param elementData [`IdVector`].
-#' Metadata for each unique identifier in `relations$element` is provided as `mcols(elementData)`.
-#' @param setData [`IdVector`].
-#' Metadata for each unique identifier in `relations$set` is provided as `mcols(setData)`.
+#' @param elementInfo [`IdVector`].
+#' Metadata for each unique identifier in `relations$element` is provided as `mcols(elementInfo)`.
+#' @param setInfo [`IdVector`].
+#' Metadata for each unique identifier in `relations$set` is provided as `mcols(setInfo)`.
 #'
-#' @return A `BaseSets` object.
+#' @return A `Sets` object.
 #'
 #' @author Kevin Rue-Albrecht
 #'
 #' @export
 #' @importFrom S4Vectors DataFrame
 #' @importFrom methods new
-BaseSets <- function(
+Sets <- function(
     relations=DataFrame(element=character(0), set=character(0)),
-    elementData, setData
+    elementInfo, setInfo
 ) {
     relations <- as(relations, "DataFrame")
 
@@ -207,49 +211,37 @@ BaseSets <- function(
     extraFields <- setdiff(colnames(relations), protectedFields)
 
     # Add missing metadata
-    if (missing(elementData)) {
-        elementData <- IdVector(unique(as.character(relations$element)))
+    if (missing(elementInfo)) {
+        elementInfo <- IdVector(unique(as.character(relations$element)))
     }
-    if (missing(setData)) {
-        setData <- IdVector(unique(as.character(relations$set)))
+    if (missing(setInfo)) {
+        setInfo <- IdVector(unique(as.character(relations$set)))
     }
     # Add missing mcols
-    if (is.null(mcols(elementData))) {
-        mcols(elementData) <- DataFrame(row.names=ids(elementData))
+    if (is.null(mcols(elementInfo))) {
+        mcols(elementInfo) <- DataFrame(row.names=ids(elementInfo))
     }
-    if (is.null(mcols(setData))) {
-        mcols(setData) <- DataFrame(row.names=ids(setData))
-    }
-
-    # Drop metadata for elements and sets not represented in relations
-    elementKeep <- (ids(elementData) %in% as.character(relations$element))
-    if (!all(elementKeep)) {
-        message("Dropping elementData missing from relations$element")
-        elementData <- elementData[elementKeep]
-    }
-    setKeep <- (ids(setData) %in% as.character(relations$set))
-    if (!all(setKeep)) {
-        message("Dropping setData missing from relations$set")
-        setData <- setData[setKeep]
+    if (is.null(mcols(setInfo))) {
+        mcols(setInfo) <- DataFrame(row.names=ids(setInfo))
     }
 
-    elementIdx <- match(as.character(relations$element), ids(elementData))
+    elementIdx <- match(as.character(relations$element), ids(elementInfo))
     if (any(is.na(elementIdx))) {
-        stop("relations$element missing from ids(elementData)")
+        stop("relations$element missing from ids(elementInfo)")
     }
-    setIdx <- match(as.character(relations$set), ids(setData))
+    setIdx <- match(as.character(relations$set), ids(setInfo))
     if (any(is.na(setIdx))) {
-        stop("relations$set missing from ids(setData)")
+        stop("relations$set missing from ids(setInfo)")
     }
 
     h <- Hits(
         from=elementIdx,
         to=setIdx,
-        nLnode=length(elementData),
-        nRnode=length(setData))
+        nLnode=length(elementInfo),
+        nRnode=length(setInfo))
     mcols(h) <- relations[, extraFields, drop=FALSE]
 
-    new("BaseSets", relations=h, elementData=elementData, setData=setData)
+    new("Sets", relations=h, elementInfo=elementInfo, setInfo=setInfo)
 }
 
 # FuzzyHits ----
@@ -307,7 +299,7 @@ FuzzyHits <- function(
         message("Setting names(membership) to NULL")
         names(membership) <- NULL
     }
-    # Pass basic arguments to BaseSets constructor
+    # Pass basic arguments to Sets constructor
     fh <- Hits(from, to, nLnode, nRnode, membership=membership, ...)
     fh <- as(fh, "FuzzyHits")
     fh
@@ -317,15 +309,15 @@ FuzzyHits <- function(
 
 #' FuzzySets Class
 #'
-#' The `FuzzySets` class extends the [`BaseSets-class`] class to implement a container that also describe different grades of membership in the interval `[0,1]`.
+#' The `FuzzySets` class extends the [`Sets-class`] class to implement a container that also describe different grades of membership in the interval `[0,1]`.
 #'
-#' This class does not define any additional slot to the `BaseSets` class.
+#' This class does not define any additional slot to the `Sets` class.
 #' However, this class defines additional validity checks to ensure that every relation stored in a `FuzzySets` are associated with a numeric membership funtion in the interval `[0,1]`.
 #'
 #' @export
 #' @exportClass FuzzySets
 #'
-#' @seealso [`BaseSets-class`], [`FuzzyHits-class`], [`FuzzySets-methods`].
+#' @seealso [`Sets-class`], [`FuzzyHits-class`], [`FuzzySets-methods`].
 #'
 #' @examples
 #' # Constructor ----
@@ -378,7 +370,7 @@ setClass("FuzzySets",
     prototype=list(
         relations=FuzzyHits()
     ),
-    contains="BaseSets"
+    contains="Sets"
 )
 
 #' @name FuzzySets-class
@@ -388,7 +380,7 @@ setClass("FuzzySets",
 #' @param relations [`DataFrame-class`].
 #' At least 3 columns that provide mapping relationships between `"element"` and `"set"` identifiers, with `"membership"` function in the range `[0,1]`.
 #' Additional columns are taken as relation metadata.
-#' @param ... Arguments passed to the [`BaseSets()`] constructor and other functions.
+#' @param ... Arguments passed to the [`Sets()`] constructor and other functions.
 #'
 #' @return A `FuzzySets` object.
 #'
@@ -403,8 +395,8 @@ FuzzySets <- function(
     protectedRelationMetadata <- c("membership")
     .requireRelationsColnames(protectedRelationMetadata, colnames(relations))
 
-    # Pass basic arguments to BaseSets constructor
-    object <- BaseSets(relations, ...)
+    # Pass basic arguments to Sets constructor
+    object <- Sets(relations, ...)
 
     # Coerce to FuzzySets
     object <- as(object, "FuzzySets")
@@ -424,7 +416,7 @@ FuzzySets <- function(
 #' # EntrezIdVector ----
 #'
 #' library(org.Hs.eg.db)
-#' eiv <- EntrezIdVector(keys(org.Hs.eg.db))
+#' eiv <- EntrezIdVector(keys(org.Hs.eg.db, keytype="ENTREZID"))
 #' eiv
 setClass("EntrezIdVector",
     contains="IdVector"
@@ -437,6 +429,35 @@ EntrezIdVector <- function(ids) {
     # Pass basic arguments to IdVector constructor
     iv <- IdVector(ids)
     iv <- new("EntrezIdVector", iv)
+    iv
+}
+
+# EnsemblIdVector ----
+
+#' @rdname IdVector-class
+#' @aliases EnsemblIdVector-class
+#'
+#' @export
+#' @exportClass EnsemblIdVector
+#'
+#' @examples
+#'
+#' # EnsemblIdVector ----
+#'
+#' library(org.Hs.eg.db)
+#' eiv <- EnsemblIdVector(keys(org.Hs.eg.db, keytype="ENSEMBL"))
+#' eiv
+setClass("EnsemblIdVector",
+    contains="IdVector"
+)
+
+#' @rdname IdVector-class
+#' @aliases EnsemblIdVector
+#' @export
+EnsemblIdVector <- function(ids) {
+    # Pass basic arguments to IdVector constructor
+    iv <- IdVector(ids)
+    iv <- new("EnsemblIdVector", iv)
     iv
 }
 
@@ -476,7 +497,7 @@ GOIdVector <- function(ids) {
 #' @aliases GOEvidenceCodes
 #'
 #' @section Controlled vocabulary:
-#' Gene Ontology evidence codes were obtained from <>
+#' Gene Ontology evidence codes were obtained from <http://geneontology.org/docs/guide-go-evidence-codes/>
 #'
 #' @export
 #'
@@ -486,7 +507,7 @@ GOIdVector <- function(ids) {
 #'   \item{carat}{Description.}
 #'   ...
 #' }
-#' @source <http://geneontology.org/docs/guide-go-evidence-codes/>
+#' @source Evidence codes: <http://geneontology.org/docs/guide-go-evidence-codes/>
 #'
 #' @examples
 #' # Controlled vocabulary ----
@@ -536,7 +557,7 @@ GOEvidenceCodes <- c(
 #'   \item{carat}{Description.}
 #'   ...
 #' }
-#' @source <http://geneontology.org/docs/guide-go-evidence-codes/>
+#' @source Namespaces: <http://geneontology.org/docs/guide-go-evidence-codes/>
 #'
 #' @examples
 #' GOOntologyCodes
@@ -610,7 +631,7 @@ GOHits <- function(
         message("Setting names(evidence) to NULL")
         names(evidence) <- NULL
     }
-    # Pass basic arguments to BaseSets constructor
+    # Pass basic arguments to Sets constructor
     gh <- Hits(from, to, nLnode, nRnode, ontology=ontology, evidence=evidence, ...)
     gh <- as(gh, "GOHits")
     gh
@@ -620,21 +641,21 @@ GOHits <- function(
 
 #' GOSets Class
 #'
-#' The `GOSets` class extends the [`BaseSets-class`] class to implement a container that also describes relations between genes and sets using the Gene Ontology controlled vocabulary.
+#' The `GOSets` class extends the [`Sets-class`] class to implement a container that also describes relations between genes and sets using the Gene Ontology controlled vocabulary.
 #' Refer to [`GOOntologyCodes`] and [`GOEvidenceCodes`] for valid vocabulary.
 #'
 #' @export
 #' @exportClass GOSets
 #'
-#' @seealso [`BaseSets-class`], [`GOHits-class`], [`GOSets-methods`].
+#' @seealso [`Sets-class`], [`GOHits-class`], [`GOSets-methods`].
 #'
 #' @examples
 #' # Constructor ----
 #'
 #' # Fetch a sample of GO annotations
 #' library(org.Hs.eg.db)
-#' base_sets <- import(org.Hs.egGO)
-#' relations <- as.data.frame(head(base_sets))
+#' go_sets <- import(org.Hs.egGO)
+#' relations <- as.data.frame(head(go_sets))
 #'
 #' gs <- GOSets(relations)
 #'
@@ -660,7 +681,7 @@ setClass("GOSets",
     prototype=list(
         relations=GOHits()
     ),
-    contains="BaseSets"
+    contains="Sets"
 )
 
 #' @name GOSets-class
@@ -670,7 +691,7 @@ setClass("GOSets",
 #' @param relations [`DataFrame-class`].
 #' At least 3 columns that provide mapping relationships between `"element"` and `"set"`, with `"membership"` function in the range `[0,1]`.
 #' Additional columns are taken as relation metadata.
-#' @param ... Arguments passed to the [`BaseSets()`] constructor and other functions.
+#' @param ... Arguments passed to the [`Sets()`] constructor and other functions.
 #'
 #' @return A `GOSets` object.
 #'
@@ -689,8 +710,8 @@ GOSets <- function(
     protectedRelationMetadata <- c("evidence", "ontology")
     .requireRelationsColnames(protectedRelationMetadata, colnames(relations))
 
-    # Pass basic arguments to BaseSets constructor
-    object <- BaseSets(relations, ...)
+    # Pass basic arguments to Sets constructor
+    object <- Sets(relations, ...)
 
     # Coerce to GOSets
     object <- as(object, "GOSets")

@@ -11,41 +11,32 @@ get_showHeadLines <- function() { 5L }
 #' @rdname INTERNAL_get_showHeadLines
 get_showTailLines <- function() { 5L }
 
-#' @importFrom utils head tail
-#' @importFrom BiocGenerics nrow ncol
+#' Compact view of `Sets` objects as a character matrix.
+#'
+#' @rdname INTERNAL_make_naked_matrix_from_Sets
+#'
+#' @param x An object of class inheriting from [`Sets-class`].
+#'
 #' @importFrom S4Vectors showAsCell classNameForDisplay
-.showSetAsTable <- function(class, x) {
-    # Settings
+#'
+#' @note Adapted from `S4Vectors:::.make_naked_matrix_from_Hits`.
+.make_naked_matrix_from_Sets <- function(x) {
     nhead <- get_showHeadLines()
     ntail <- get_showTailLines()
-    nm <- nrow(x)
-    nc <- ncol(x)
-    ne <- length(unique(as.character(x$element)))
-    ns <- length(unique(as.character(x$set)))
+    x_len <- length(x)
+    x_mcols <- mcols(relations(x))
+    x_nmc <- if (is.null(x_mcols)) 0L else ncol(x_mcols)
+    ans <- cbind(
+        from = ids(elementInfo(x))[from(relations(x))],
+        to = ids(setInfo(x))[to(relations(x))]
+    )
+    colnames(ans) <- c("element", "set")
 
-    # Display
-    cat(
-        class, " with ",
-        nm, ifelse(nm == 1, " relation", " relations"), " between ",
-        ne, ifelse(ne == 1, " element", " elements"), " and ",
-        ns, ifelse(ns == 1, " set\n", " sets\n"),
-        sep = "")
-    if (nm > 0) {
-        if (nm <= (nhead + ntail + 1L)) {
-            out <- as.matrix(format(as.data.frame(lapply(x,
-                showAsCell), optional = TRUE)))
-        }
-        else {
-            out <- rbind(as.matrix(format(as.data.frame(lapply(x,
-                function(x) showAsCell(head(x, nhead))), optional = TRUE))),
-                rbind(rep.int("...", nc)), as.matrix(format(as.data.frame(lapply(x,
-                  function(x) showAsCell(tail(x, ntail))), optional = TRUE))))
-        }
-        classinfo <- matrix(unlist(lapply(x, function(x) {
-            paste0("<", classNameForDisplay(x)[1], ">")
-        }), use.names = FALSE), nrow = 1, dimnames = list("",
-            colnames(out)))
-        out <- rbind(classinfo, out)
-        print(out, quote = FALSE, right = TRUE)
+    if (x_nmc > 0L) {
+        tmp <- do.call(data.frame, c(lapply(x_mcols, showAsCell),
+                                     list(check.names=FALSE)))
+        ans <- cbind(ans, `|`=rep.int("|", x_len), as.matrix(tmp))
     }
+
+    ans
 }

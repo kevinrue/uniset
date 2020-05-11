@@ -23,7 +23,7 @@ elementsUnlist <- unlist(sets)
 setsUnlist <- rep(names(sets), lengths(sets))
 names(setsUnlist) <- paste0("x", seq_along(setsUnlist))
 relations <- DataFrame(element=elementsUnlist, set=setsUnlist)
-basic_baseset <- BaseSets(relations)
+basic_baseset <- Sets(relations)
 
 # GMTFile ----
 
@@ -38,7 +38,7 @@ test_that("GMTFile constructor works as expected.", {
 
 # import ----
 
-test_that("GMT importing produces valid BaseSets with proper source", {
+test_that("GMT importing produces valid Sets with proper source", {
 
     out <- import(good_gmt)
 
@@ -51,7 +51,7 @@ test_that("GMT importing produces valid BaseSets with proper source", {
             HALLMARK_TNFA_SIGNALING_VIA_NFKB = 200L
         )
     )
-    expect_identical(mcols(setData(out))[["source"]], expected_gs)
+    expect_identical(mcols(setInfo(out))[["source"]], expected_gs)
 
 })
 
@@ -73,7 +73,7 @@ test_that("GMT importing passes with duplicated elements within set.", {
 
 })
 
-test_that("GMT exporting produces a valid file from BaseSets.", {
+test_that("GMT exporting produces a valid file from Sets.", {
 
     x <- import(good_gmt)
 
@@ -81,7 +81,7 @@ test_that("GMT exporting produces a valid file from BaseSets.", {
     expect_silent(export(x, tmp))
     expect_message(
         export(basic_baseset, tmp),
-        "'source' column not found in mcols(setData(object)), setting to \"unisets\"",
+        "'source' column not found in mcols(setInfo(object)), setting to \"unisets\"",
         fixed=TRUE
     )
 
@@ -89,7 +89,7 @@ test_that("GMT exporting produces a valid file from BaseSets.", {
     # The only different between the export and imported object is the added source="unisets"
     basic_baseset1 <- import(tmp)
     basic_baseset0 <- basic_baseset
-    basic_baseset0@setData@elementMetadata$source <- "unisets"
+    basic_baseset0@setInfo@elementMetadata$source <- "unisets"
     expect_identical(basic_baseset1, basic_baseset0)
 
 })
@@ -112,7 +112,7 @@ test_that("GMT method export.gmt works as expected.", {
 
     expect_message(
         export.gmt(basic_baseset, tmp),
-        "'source' column not found in mcols(setData(object)), setting to \"unisets\"",
+        "'source' column not found in mcols(setInfo(object)), setting to \"unisets\"",
         fixed=TRUE
     )
     expect_silent(export.gmt(out, tmp))
@@ -143,17 +143,17 @@ test_that("GMT errors expected upon trying to import with bad extensions", {
 test_that("import(Go3AnnDbBimap) works", {
 
     out <- import(org.Hs.egGO)
-    expect_s4_class(out, "BaseSets")
+    expect_s4_class(out, "Sets")
     expect_gt(length(out), 0)
-    expect_gt(length(elementData(out)), 0)
-    expect_gt(length(setData(out)), 0)
-    expect_gt(ncol(mcols(setData(out))), 0)
+    expect_gt(length(elementInfo(out)), 0)
+    expect_gt(length(setInfo(out)), 0)
+    expect_gt(ncol(mcols(setInfo(out))), 0)
 
     out <- import.Go3AnnDbBimap(org.Hs.egGO)
-    expect_s4_class(out, "BaseSets")
+    expect_s4_class(out, "Sets")
     expect_gt(length(out), 0)
-    expect_gt(length(elementData(out)), 0)
-    expect_gt(length(setData(out)), 0)
-    expect_gt(ncol(mcols(setData(out))), 0)
+    expect_gt(length(elementInfo(out)), 0)
+    expect_gt(length(setInfo(out)), 0)
+    expect_gt(ncol(mcols(setInfo(out))), 0)
 
 })

@@ -11,6 +11,7 @@
 \alias{names<-,IdVector,ANY-method}
 \alias{names<-,IdVector-method}
 \alias{length,IdVector-method}
+\alias{duplicated,IdVector-method}
 \alias{[,IdVector,ANY,ANY,ANY-method}
 \alias{[,IdVector-method}
 \alias{as.vector.IdVector}
@@ -33,6 +34,8 @@ ids(object) <- value
 
 \S4method{length}{IdVector}(x)
 
+\S4method{duplicated}{IdVector}(x, incomparables = FALSE, ...)
+
 \S4method{[}{IdVector,ANY,ANY,ANY}(x, i, j, ..., drop = TRUE)
 
 \method{as.vector}{IdVector}(x, mode = "character")
@@ -45,6 +48,8 @@ as.IdVector.default(ids, ...)
 \item{object, x}{An object of class inheriting from \code{\linkS4class{IdVector}}.}
 
 \item{value}{An object of a class specified in the S4 method signature.}
+
+\item{incomparables}{Ignored.}
 
 \item{i}{index specifying elements to extract or replace.}
 
@@ -108,6 +113,16 @@ names(iv1)[1] <- "GENE001"
 # Dimensions ----
 
 length(iv)
+
+# Duplication ----
+
+iv1 <- iv[c(1, 1, 2, 2)]
+duplicated(iv1)
+unique(iv1)
+
+iv1 <- iv[1:3]
+iv2 <- iv[2:4]
+union(iv1, iv2)
 
 # Subsetting ----
 

@@ -1,3 +1,4 @@
+
 # ids() ----
 
 #' @rdname IdVector-methods
@@ -92,6 +93,35 @@ setMethod("length", "IdVector", function(x) {
     length(slot(x, "ids"))
 })
 
+# duplicated() ----
+
+#' @rdname IdVector-methods
+#' @aliases duplicated,IdVector-method
+#' @aliases c,IdVector-method
+#' @aliases union,IdVector,IdVector-method
+#'
+#' @param incomparables Ignored.
+#'
+#' @export
+#'
+#' @examples
+#'
+#' # Duplication ----
+#'
+#' iv1 <- iv[c(1, 1, 2, 2)]
+#' duplicated(iv1)
+#' unique(iv1)
+#'
+#' iv1 <- iv[1:3]
+#' iv2 <- iv[2:4]
+#' union(iv1, iv2)
+setMethod(
+    "duplicated", "IdVector",
+    function(x, incomparables = FALSE, ...) {
+        duplicated(ids(x))
+    }
+)
+
 # [ ----
 
 #' @rdname IdVector-methods
@@ -118,6 +148,7 @@ setMethod("[", "IdVector", function(x, i, j, ..., drop = TRUE) {
 
 # show() ----
 
+#' @importFrom utils head
 #' @importFrom S4Vectors mcols
 setMethod("show", "IdVector", function(object) {
     ne <- length(object)
@@ -148,14 +179,7 @@ setMethod("show", "IdVector", function(object) {
             ifelse(nem == 1, " column", " columns"), ")")
         cat(metadata, "\n", sep = "")
     }
-    invisible(ids(object))
-})
-
-# showAsCell() ----
-
-#' @importFrom methods slot
-setMethod("showAsCell", "IdVector", function(object) {
-    slot(object, "ids")
+    invisible(NULL)
 })
 
 # NSBS ----
@@ -273,7 +297,6 @@ setValidity("IdVector", function(object) {
             uniqueRowsById <- vapply(metadataById, function(x){ nrow(unique(x)) }, integer(1))
             nonUniqueIds <- names(which(uniqueRowsById > 1))
             if (length(nonUniqueIds) > 0) {
-                # print(uniqueRowsById[uniqueRowsById > 1])
                 textIds <- paste(head(nonUniqueIds, 4), collapse = ", ")
                 if (length(nonUniqueIds) > 4) {
                     textIds <- paste0(textIds, ", ...")

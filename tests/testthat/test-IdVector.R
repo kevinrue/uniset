@@ -120,14 +120,14 @@ test_that("show(IdVector) works", {
 
     out <- show(iv)
     # The show method invisibly returns the character vector of identifiers
-    expect_identical(out, head(as.character(idValues), 3))
+    expect_identical(out, NULL)
 
     # Large objects partially displayed
     iv <- IdVector(idValues)
 
     out <- show(iv)
     # The show method invisibly returns the character vector of identifiers
-    expect_identical(out, as.character(idValues))
+    expect_identical(out, NULL)
 
     # Large elementMetadata
     mcols(iv) <- DataFrame(a=1, b=2, c=3, d=4, e=5, f=6)
@@ -208,5 +208,81 @@ test_that("split(IdVector, IdVector) works", {
     out <- split(iv1, iv2)
     expect_named(out, c("set1", "set2", "set3"))
     expect_identical(lengths(out), c(set1=1L, set2=2L, set3=3L))
+
+})
+
+# duplicated(IdVector) ----
+
+test_that("duplicated(IdVector) works", {
+
+    iv <- IdVector(rep(head(letters, 3), 2L))
+    mcols(iv) <- DataFrame(row.names = ids(iv), field1=rep(runif(3), 2))
+
+    out <- duplicated(iv)
+    expect_identical(out, c(rep(FALSE, 3), rep(TRUE, 3)))
+
+})
+
+# unique(IdVector) ----
+
+test_that("unique(IdVector) works", {
+
+    iv <- IdVector(rep(head(letters, 3), 2L))
+    mcols(iv) <- DataFrame(row.names = ids(iv), field1=rep(runif(3), 2))
+
+    out <- unique(iv)
+    expect_length(out, 3L)
+    expect_identical(ids(out), head(letters, 3))
+
+})
+
+# c(IdVector, ...) ----
+
+test_that("c(IdVector, ...) works", {
+
+    iv1 <- IdVector(head(letters, 3))
+    mcols(iv1) <- DataFrame(row.names = ids(iv1), field1=runif(length(iv1)))
+    iv2 <- IdVector(tail(letters, 3))
+    mcols(iv2) <- DataFrame(row.names = ids(iv2), field1=runif(length(iv2)))
+    iv3 <- iv2
+
+    out <- c(iv1, iv2, iv3)
+    expect_named(out, c("a", "b", "c", "x", "y", "z", "x", "y", "z"))
+    expect_identical(mcols(out), rbind(mcols(iv1), mcols(iv2), mcols(iv3)))
+
+})
+
+# union(IdVector) ----
+
+test_that("union(IdVector) works", {
+
+    iv1 <- IdVector(head(letters, 3))
+    mcols(iv1) <- DataFrame(row.names = ids(iv1), field1=runif(length(iv1)))
+    iv2 <- IdVector(tail(letters, 3))
+    mcols(iv2) <- DataFrame(row.names = ids(iv2), field1=runif(length(iv2)))
+
+    # Union of non overlapping IdVector's
+    out <- union(iv1, iv2)
+    expect_identical(
+        ids(out),
+        unique(c(ids(iv1), ids(iv2)))
+    )
+    expect_identical(mcols(out), rbind(mcols(iv1), mcols(iv2)))
+
+
+    # Union of fully overlapping IdVector's
+    out <- union(iv1, iv1)
+    expect_identical(out, iv1)
+
+    # Union of partially overlapping IdVector's
+    iv3 <- iv1
+    ids(iv3)[1] <- "new"
+    out <- union(iv1, iv3)
+
+    expect_identical(
+        ids(out),
+        unique(c(ids(iv1), ids(iv3)))
+    )
+    expect_identical(mcols(out), rbind(mcols(iv1), mcols(iv3)["new", , drop=FALSE]))
 
 })

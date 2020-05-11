@@ -13,8 +13,8 @@
 #'
 #' # Fetch a sample of GO annotations
 #' library(org.Hs.eg.db)
-#' base_sets <- import(org.Hs.egGO)
-#' relations <- as.data.frame(head(base_sets))
+#' go_sets <- import(org.Hs.egGO)
+#' relations <- as.data.frame(head(go_sets))
 #'
 #' gs <- GOSets(relations)
 #'
@@ -72,39 +72,6 @@ setReplaceMethod("ontology", "GOSets",
         object
     }
 )
-
-# subset ----
-
-#' @rdname GOSets-methods
-#' @aliases subset.GOSets subset,GOSets-method
-#'
-#' @param ... Additional arguments passed to and from other methods.
-#'
-#' @section Subsetting:
-#' `subset(x, subset, ...)` returns subsets of relations which meet conditions.
-#' For `GOSets` objects, the `subset` argument should be a logical expression referring to any of `"element"`, `"set"`, `"evidence"`, `"ontology"` and other available relation metadata indicating elements or rows to keep: missing values are taken as false.
-#' In addition, metadata for elements and sets that are not represented in the remaining relations are also dropped.
-#'
-#' @importFrom methods as
-#' @importFrom BiocGenerics eval unique
-#' @importFrom S4Vectors from to subset
-#' @method subset GOSets
-#' @export
-#'
-#' @examples
-#'
-#' # Subsetting ----
-#'
-#' gs1 <- subset(gs, ontology == "BP" & evidence == "TAS")
-#' gs1
-subset.GOSets <- function(x, ...) subset(x, ...)
-
-setMethod("subset", "GOSets", function(x, ...) {
-    out <- callNextMethod()
-
-    out <- as(out, "GOSets")
-    out
-})
 
 # setValidity ----
 

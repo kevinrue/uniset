@@ -1,21 +1,25 @@
 
-# BaseSets ----
+# Sets ----
 
-#' Methods for `BaseSets` Objects
+#' Methods for `Sets` Objects
 #'
-#' This page documents the S4 generics and methods defined for objects inheriting of the [`BaseSets-class`] class.
-#' In the usage below, `object` and `x` represent an object of class inheriting from [`BaseSets-class`],
+#' This page documents the S4 generics and methods defined for objects inheriting of the [`Sets-class`] class.
+#' In the usage below, `object` and `x` represent an object of class inheriting from [`Sets-class`],
 #' and `value` is an object of a class specified in the S4 method signature or as outlined in 'Accessors'.
 #'
-#' @name BaseSets-methods
-#' @rdname BaseSets-methods
+#' @name Sets-methods
+#' @rdname Sets-methods
 #'
-#' @param object,x An object of class inheriting from [`BaseSets-class`].
+#' @param object,x An object of class inheriting from [`Sets-class`].
 #' @param value An object of a class specified in the S4 method signature or as outlined in 'Accessors'.
+#'
+#' @importMethodsFrom methods show
+#' @importMethodsFrom S4Vectors union c
+#' @importMethodsFrom BiocGenerics duplicated
 #'
 #' @author Kevin Rue-Albrecht
 #'
-#' @seealso [`BaseSets-class`].
+#' @seealso [`Sets-class`].
 NULL
 
 # FuzzyHits ----
@@ -63,7 +67,7 @@ NULL
 #' Methods for `FuzzySets` Objects
 #'
 #' This page documents the S4 generics and methods defined for objects inheriting of the [`FuzzySets-class`] class.
-#' The `FuzzySets` class directly extends [`BaseSets-class`] and thus inherits of all methods defined for the parent class.
+#' The `FuzzySets` class directly extends [`Sets-class`] and thus inherits of all methods defined for the parent class.
 #' In the usage below, `object` and `x` represent an object of class inheriting from [`FuzzySets-class`],
 #' and `value` is an object of a class specified in the S4 method signature or as outlined in 'Accessors'.
 #'
@@ -75,7 +79,7 @@ NULL
 #'
 #' @author Kevin Rue-Albrecht
 #'
-#' @seealso [`FuzzySets-class`], [`BaseSets-methods`].
+#' @seealso [`FuzzySets-class`], [`Sets-methods`].
 NULL
 
 # GOHits ----
@@ -109,17 +113,17 @@ NULL
 #' Methods for `GOSets` Objects
 #'
 #' This page documents the S4 generics and methods defined for objects inheriting of the [`GOSets-class`] class.
-#' The `GOSets` class directly extends [`BaseSets-class`] and thus inherits of all methods defined for the parent class.
-#' In the usage below, `object` and `x` represent an object of class inheriting from [`GOSets-class`],
+#' The `GOSets` class directly extends [`Sets-class`] and thus inherits of all methods defined for the parent class.
+#' In the usage below, `object` represents an object of class inheriting from [`GOSets-class`],
 #' and `value` is an object of a class specified in the S4 method signature or as outlined in 'Accessors'.
 #'
 #' @name GOSets-methods
 #' @rdname GOSets-methods
 #'
-#' @param object,x An object of class inheriting from [`GOSets-class`].
+#' @param object An object of class inheriting from [`GOSets-class`].
 #' @param value An object of a class specified in the S4 method signature or as outlined in 'Accessors'.
 #'
 #' @author Kevin Rue-Albrecht
 #'
-#' @seealso [`GOSets-class`], [`BaseSets-methods`].
+#' @seealso [`GOSets-class`], [`Sets-methods`].
 NULL

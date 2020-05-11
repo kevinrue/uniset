@@ -53,7 +53,7 @@ test_that("GOSets validity method identifies issues", {
 
     # unsupported evidence code (as.character)
     relations0 <- relations
-    relations0$evidence[1] <- "NEW"
+    suppressWarnings(relations0$evidence[1] <- "NEW")
     expect_warning(
         GOSets(relations0),
         "invalid evidence code, NA generated (See ?GOEvidenceCodes)",
@@ -61,7 +61,7 @@ test_that("GOSets validity method identifies issues", {
     )
     # unsupported ontology code (as.character)
     relations0 <- relations
-    relations0$ontology[1] <- "NEW"
+    suppressWarnings(relations0$ontology[1] <- "NEW")
     expect_warning(
         GOSets(relations0),
         "invalid ontology code, NA generated (See ?GOOntologyCodes)",
@@ -70,7 +70,7 @@ test_that("GOSets validity method identifies issues", {
 
     # unsupported evidence code (as.factor)
     relations0 <- relations
-    relations0$evidence[1] <- "NEW"
+    suppressWarnings(relations0$evidence[1] <- "NEW")
     relations0$evidence <- as.factor(relations0$evidence)
     expect_warning(
         GOSets(relations0),
@@ -79,7 +79,7 @@ test_that("GOSets validity method identifies issues", {
     )
     # unsupported ontology code (as.factor)
     relations0 <- relations
-    relations0$ontology[1] <- "NEW"
+    suppressWarnings(relations0$ontology[1] <- "NEW")
     relations0$ontology <- as.factor(relations0$ontology)
     expect_warning(
         GOSets(relations0),
@@ -136,9 +136,7 @@ test_that("subset(GOSets) works", {
     gs <- GOSets(relations)
 
     out <- subset(gs, ontology == "BP" & evidence == "TAS")
-    expect_true(all(ontology(out) == "BP" & evidence(out) == "TAS"))
-
-    out <- subset.GOSets(gs, ontology == "BP" & evidence == "TAS")
+    expect_s4_class(out, "GOSets")
     expect_true(all(ontology(out) == "BP" & evidence(out) == "TAS"))
 
 })
@@ -150,10 +148,7 @@ test_that("show(GOSets) works", {
     gs <- GOSets(relations)
 
     out <- show(gs)
-    expect_identical(
-        colnames(out),
-        c("element", "set", "relationData", "elementData", "setData"))
-    expect_identical(nrow(out), length(gs)+1L)
+    expect_identical(out, NULL)
 
 })
 
